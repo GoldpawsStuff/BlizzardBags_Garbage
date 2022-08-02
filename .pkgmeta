@@ -1,0 +1,17 @@
+package-as: BlizzardBags_Garbage
+enable-nolib-creation: no
+
+move-folders:
+    BlizzardBags_Garbage/BlizzardBags_Garbage: BlizzardBags_Garbage
+
+manual-changelog:
+    filename: CHANGELOG.md
+    markup-type: markdown
+
+license-output: LICENSE.txt
+
+ignore:
+    - CHANGELOG.md
+    - CODE_OF_CONDUCT.md
+    - README.md
+    - LICENSE.md
