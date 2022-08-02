@@ -82,7 +82,7 @@ local Update = function(self, bag, slot)
 
 		-- Retrieve of create the garbage overlay
 		if (not container.garbage) then
-			container.garbage = button:CreateTexture()
+			container.garbage = self:CreateTexture()
 			container.garbage.icon = self.Icon or self.icon or _G[self:GetName().."IconTexture"]
 			local layer,level = container.garbage.icon:GetDrawLayer()
 			container.garbage:SetDrawLayer(layer, (level or 6) + 1)
