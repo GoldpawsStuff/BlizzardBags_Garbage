@@ -237,15 +237,18 @@ Private.OnEnable = function(self)
 	else
 		hooksecurefunc("ContainerFrame_Update", UpdateContainer)
 		hooksecurefunc("BankFrame_UpdateItems", UpdateBank)
-		hooksecurefunc("ContainerFrame_UpdateLockedItem", UpdateLock)
-		hooksecurefunc("BankFrameItemButton_UpdateLocked", UpdateLock)
+		--hooksecurefunc("ContainerFrame_UpdateLockedItem", UpdateLock)
+		--hooksecurefunc("BankFrameItemButton_UpdateLocked", UpdateLock)
 		self:RegisterEvent("PLAYERBANKSLOTS_CHANGED") -- for single item changes
-		if (SortBags) then
-			hooksecurefunc("SortBags", UpdateAllBags)
-		end
-		if (SortBankBags) then
-			hooksecurefunc("SortBankBags", UpdateAllBankBags)
-		end
+
+		hooksecurefunc("SetItemButtonDesaturated", UpdateLock)
+
+		--if (SortBags) then
+		--	hooksecurefunc("SortBags", UpdateAllBags)
+		--end
+		--if (SortBankBags) then
+		--	hooksecurefunc("SortBankBags", UpdateAllBankBags)
+		--end
 	end
 end
 
