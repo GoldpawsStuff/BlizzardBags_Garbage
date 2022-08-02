@@ -10,8 +10,8 @@
 ## Author: Lars Norberg
 
 ## X-Category: Inventory
-## X-Curse-Project-ID:
-## X-Wago-ID:
+## X-Curse-Project-ID: 654166
+## X-Wago-ID: R4N2jZNL
 ## X-License: Custom
 
 main.lua
