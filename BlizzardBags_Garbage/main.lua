@@ -96,8 +96,8 @@ local Update = function(self, bag, slot)
 		local cache = Cache[self]
 		if (cache and cache.garbage) then
 			cache.garbage:Hide()
+			cache.garbage.icon:SetDesaturated(locked)
 		end
-		cache.garbage.icon:SetDesaturated(locked)
 	end
 end
 
