@@ -153,6 +153,27 @@ local UpdateLock = function(self)
 	end
 end
 
+-- Valid in all versions, if we don't include 10.0.0 reagent bag
+local UpdateAllBags = function(self)
+	for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+		local container =_G["ContainerFrame"..i]
+		if (container) then
+			UpdateContainer(container)
+		end
+	end
+end
+
+-- Only valid in < 10.0.0
+local UpdateAllBankBags = function(self)
+	UpdateBank()
+	for i = NUM_BAG_SLOTS+1, NUM_BAG_SLOTS+NUM_BANKBAGSLOTS do
+		local container =_G["ContainerFrame"..i]
+		if (container) then
+			UpdateContainer(container)
+		end
+	end
+end
+
 
 -- Addon Core
 -----------------------------------------------------------
@@ -219,6 +240,12 @@ Private.OnEnable = function(self)
 		hooksecurefunc("ContainerFrame_UpdateLockedItem", UpdateLock)
 		hooksecurefunc("BankFrameItemButton_UpdateLocked", UpdateLock)
 		self:RegisterEvent("PLAYERBANKSLOTS_CHANGED") -- for single item changes
+		if (SortBags) then
+			hooksecurefunc("SortBags", UpdateAllBags)
+		end
+		if (SortBankBags) then
+			hooksecurefunc("SortBankBags", UpdateAllBankBags)
+		end
 	end
 end
 
