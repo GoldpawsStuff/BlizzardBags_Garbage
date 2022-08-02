@@ -82,9 +82,10 @@ local Update = function(self, bag, slot)
 
 		-- Retrieve of create the garbage overlay
 		if (not container.garbage) then
-			container.garbage = container:CreateTexture()
+			container.garbage = button:CreateTexture()
 			container.garbage.icon = self.Icon or self.icon or _G[self:GetName().."IconTexture"]
-			container.garbage:SetDrawLayer("ARTWORK", 0)
+			local layer,level = container.garbage.icon:GetDrawLayer()
+			container.garbage:SetDrawLayer(layer, (level or 6) + 1)
 			container.garbage:SetAllPoints(container.garbage.icon)
 			container.garbage:SetColorTexture((51/255)*.2, (17/255)*.2, (6/255)*.2, .6)
 		end
@@ -148,7 +149,7 @@ end
 local UpdateLock = function(self)
 	local cache = Cache[self]
 	if (cache and cache.garbage) then
-		Update(self)
+		Update(self, self:GetParent():GetID(), self:GetID())
 	end
 end
 
