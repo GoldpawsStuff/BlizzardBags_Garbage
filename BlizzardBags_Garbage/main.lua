@@ -143,6 +143,21 @@ local UpdateBank = function()
 	end
 end
 
+-- Update a single bank button, needed for classics
+local UpdateBankButton = function(self)
+	if (self and not self.isBag) then
+		-- Always run a full update here,
+		-- as the .hasItem flag might not have been set yet.
+		Update(self, BankSlotsFrame:GetID(), self:GetID())
+	else
+		local cache = Cache[button]
+		if (cache and cache.garbage) then
+			cache.garbage:Hide()
+			cache.garbage.icon:SetDesaturated(false)
+		end
+	end
+end
+
 -- Only post-update item lock on cached buttons.
 -- *If they're not cached they either will be on the next Update,
 -- or they're not cached because they're not an itembutton.
@@ -236,7 +251,18 @@ Private.OnEnable = function(self)
 
 	else
 		hooksecurefunc("ContainerFrame_Update", UpdateContainer)
-		hooksecurefunc("BankFrame_UpdateItems", UpdateBank)
+
+		-- Retail
+		if (BankFrame_UpdateItems) then
+			hooksecurefunc("BankFrame_UpdateItems", UpdateBank)
+
+		-- Classics
+		elseif (BankFrameItemButton_UpdateLocked) then
+			-- This is called from within BankFrameItemButton_Update,
+			-- and thus works as an update for both.
+			hooksecurefunc("BankFrameItemButton_UpdateLocked", UpdateBankButton)
+		end
+
 		--hooksecurefunc("ContainerFrame_UpdateLockedItem", UpdateLock)
 		--hooksecurefunc("BankFrameItemButton_UpdateLocked", UpdateLock)
 		self:RegisterEvent("PLAYERBANKSLOTS_CHANGED") -- for single item changes
