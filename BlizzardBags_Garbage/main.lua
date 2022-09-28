@@ -123,6 +123,22 @@ local UpdateContainer = function(self)
 	end
 end
 
+-- Parse combined container
+UpdateCombinedContainer = function(self)
+	for id,button in self:EnumerateItems() do
+		if (button.hasItem) then
+			-- The buttons retain their original bagID
+			Update(button, button:GetBagID(), button:GetID())
+		else
+			local cache = Cache[button]
+			if (cache and cache.garbage) then
+				cache.garbage:Hide()
+				cache.garbage.icon:SetDesaturated(false)
+			end
+		end
+	end
+end
+
 -- Parse the main bankframe
 local UpdateBank = function()
 	local BankSlotsFrame = BankSlotsFrame
@@ -219,63 +235,63 @@ end
 -- This fires when most of the user interface has been loaded
 -- and most data is available to the user.
 Private.OnEnable = function(self)
-	if (self.IsDragonflight) then
 
-		-- Just bail out for now, this isn't done!
-		do return end
+	-- In 10.0.0 Blizzard switched to a template based system
+	-- for all backpack, bank- and bag buttons.
+	--
+	-- 	BaseContainerFrameMixin
+	-- 		BankFrameMixin 							(bank frame)
+	-- 		ContainerFrameMixin 					(all character- and bank bags) (has :Update())
+	--	 		ContainerFrameTokenWatcherMixin
+	--	 			ContainerFrameBackpackMixin 	(backpack)
+	--	 			ContainerFrameCombinedBagsMixin (all in one bag)
 
-		-- In 10.0.0 Blizzard switched to a template based system
-		-- for all backpack, bank- and bag buttons.
-		--
-		-- 	BaseContainerFrameMixin
-		-- 		BankFrameMixin 							(bank frame)
-		-- 		ContainerFrameMixin 					(all character- and bank bags)
-		--	 		ContainerFrameTokenWatcherMixin
-		--	 			ContainerFrameBackpackMixin 	(backpack)
-		--	 			ContainerFrameCombinedBagsMixin (all in one bag)
 
-		--
-		-- It's probably most efficient to hook this,
-		-- problem here being that the main bankframe lacks it:
-		--
-		-- ContainerFrameMixin:Update() -- ContainerFrame1-13 has this
-
-		local id = 0
-		local frame = _G.ContainerFrameCombinedBags
-		while (frame) do
-			hooksecurefunc(frame, "Update", UpdateContainer) -- Probably won't work, must adjust!
+	-- All the Classics
+	if (ContainerFrame_Update) then
+		hooksecurefunc("ContainerFrame_Update", UpdateContainer)
+	else
+		-- Dragonflight and up
+		local id = 1
+		local frame = _G["ContainerFrame"..id]
+		while (frame and frame.Update) do
+			hooksecurefunc(frame, "Update", UpdateContainer)
 			id = id + 1
 			frame = _G["ContainerFrame"..id]
 		end
+	end
+
+	-- Dragonflight and up
+	if (ContainerFrameCombinedBags) then
+		hooksecurefunc(ContainerFrameCombinedBags, "Update", UpdateCombinedContainer)
+	end
+
+	-- Shadowlands and up
+	if (BankFrame_UpdateItems) then
 		hooksecurefunc("BankFrame_UpdateItems", UpdateBank)
 
-	else
-		hooksecurefunc("ContainerFrame_Update", UpdateContainer)
-
-		-- Retail
-		if (BankFrame_UpdateItems) then
-			hooksecurefunc("BankFrame_UpdateItems", UpdateBank)
-
-		-- Classics
-		elseif (BankFrameItemButton_UpdateLocked) then
-			-- This is called from within BankFrameItemButton_Update,
-			-- and thus works as an update for both.
-			hooksecurefunc("BankFrameItemButton_UpdateLocked", UpdateBankButton)
-		end
-
-		--hooksecurefunc("ContainerFrame_UpdateLockedItem", UpdateLock)
-		--hooksecurefunc("BankFrameItemButton_UpdateLocked", UpdateLock)
-		self:RegisterEvent("PLAYERBANKSLOTS_CHANGED") -- for single item changes
-
-		hooksecurefunc("SetItemButtonDesaturated", UpdateLock)
-
-		--if (SortBags) then
-		--	hooksecurefunc("SortBags", UpdateAllBags)
-		--end
-		--if (SortBankBags) then
-		--	hooksecurefunc("SortBankBags", UpdateAllBankBags)
-		--end
+	-- Classics
+	elseif (BankFrameItemButton_UpdateLocked) then
+		-- This is called from within BankFrameItemButton_Update,
+		-- and thus works as an update for both.
+		hooksecurefunc("BankFrameItemButton_UpdateLocked", UpdateBankButton)
 	end
+
+	-- For single item changes
+	self:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
+
+	-- To avoid weird double desaturation
+	if (SetItemButtonDesaturated) then
+		hooksecurefunc("SetItemButtonDesaturated", UpdateLock)
+	end
+
+	--if (SortBags) then
+	--	hooksecurefunc("SortBags", UpdateAllBags)
+	--end
+	--if (SortBankBags) then
+	--	hooksecurefunc("SortBankBags", UpdateAllBankBags)
+	--end
+
 end
 
 
@@ -302,12 +318,13 @@ end
 	MAJOR = tonumber(MAJOR)
 
 	Private.Version = version
-	Private.IsRetail = MAJOR >= 9
+	Private.ClientMajor = MAJOR
 	Private.IsDragonflight = MAJOR == 10
-	Private.IsClassic = MAJOR == 1
-	Private.IsBCC = MAJOR == 2
-	Private.IsWotLK = MAJOR == 3
-	Private.CurrentClientBuild = currentClientBuild -- Expose the build number too
+	Private.IsRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+	Private.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+	Private.IsBCC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
+	Private.IsWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
+	Private.CurrentClientBuild = currentClientBuild
 
 	-- Should mostly be used for debugging
 	Private.Print = function(self, ...)
