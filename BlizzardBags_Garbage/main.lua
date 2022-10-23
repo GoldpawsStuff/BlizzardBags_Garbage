@@ -38,6 +38,9 @@ local CreateFrame = CreateFrame
 local GetContainerItemInfo = GetContainerItemInfo
 local GetItemInfo = GetItemInfo
 
+-- WoW10 API
+local C_Container_GetContainerItemInfo = C_Container and C_Container.GetContainerItemInfo
+
 -- WoW Objects
 local CFSM = ContainerFrameSettingsManager -- >= 10.0.0
 local CFCB = ContainerFrameCombinedBags -- >= 10.0.0
@@ -58,10 +61,19 @@ GP_ItemButtonInfoFrameCache = Cache
 -- Update an itembutton's garbage overlay
 local Update = function(self, bag, slot)
 
-	local garbage
+	local garbage, locked, quality, itemLink, _
 	local r, g, b = 240/255, 240/255, 240/255
 
-	local _, _, locked, quality, _, _, itemLink = GetContainerItemInfo(bag,slot)
+	if (C_Container_GetContainerItemInfo) then
+		local containerInfo = C_Container_GetContainerItemInfo(bag,slot)
+		if (containerInfo) then
+			locked = containerInfo.isLocked
+			quality = containerInfo.quality
+			itemLink = containerInfo.hyperlink
+		end
+	else
+		_, _, locked, quality, _, _, itemLink = GetContainerItemInfo(bag,slot)
+	end
 	if (itemLink) then
 		local _, _, itemQuality = GetItemInfo(itemLink)
 		if (itemQuality and itemQuality == 0 and not locked) then
@@ -311,20 +323,12 @@ end
 	end
 
 	-- WoW Client versions
-	local currentClientPatch, currentClientBuild = GetBuildInfo()
-	currentClientBuild = tonumber(currentClientBuild)
-
-	local MAJOR,MINOR,PATCH = string.split(".", currentClientPatch)
-	MAJOR = tonumber(MAJOR)
-
-	Private.Version = version
-	Private.ClientMajor = MAJOR
-	Private.IsDragonflight = MAJOR == 10
+	local patch, build, date, version = GetBuildInfo()
 	Private.IsRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 	Private.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-	Private.IsBCC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
+	Private.IsTBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 	Private.IsWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-	Private.CurrentClientBuild = currentClientBuild
+	Private.WoW10 = version >= 100000
 
 	-- Should mostly be used for debugging
 	Private.Print = function(self, ...)
