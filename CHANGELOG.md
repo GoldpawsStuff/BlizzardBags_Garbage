@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.6-Release] 2022-10-25
+- Bumped retail version to the 10.0.0 patch.
+
 ## [1.0.5-Release] 2022-10-23
 ### Fixed
 - Updated the API used in Dragonflight.
