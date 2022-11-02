@@ -41,20 +41,10 @@ local GetItemInfo = GetItemInfo
 -- WoW10 API
 local C_Container_GetContainerItemInfo = C_Container and C_Container.GetContainerItemInfo
 
--- WoW Objects
-local CFSM = ContainerFrameSettingsManager -- >= 10.0.0
-local CFCB = ContainerFrameCombinedBags -- >= 10.0.0
-
--- Tooltip used for scanning.
--- Let's keep this name for all scanner addons.
-local _SCANNER = "GP_ScannerTooltip"
-local Scanner = _G[_SCANNER] or CreateFrame("GameTooltip", _SCANNER, WorldFrame, "GameTooltipTemplate")
-
 -- Cache of information objects,
 -- globally available so addons can share it.
 local Cache = GP_ItemButtonInfoFrameCache or {}
 GP_ItemButtonInfoFrameCache = Cache
-
 
 -- Callbacks
 -----------------------------------------------------------
@@ -217,7 +207,6 @@ local UpdateAllBankBags = function(self)
 	end
 end
 
-
 -- Addon Core
 -----------------------------------------------------------
 -- Your event handler.
@@ -247,17 +236,6 @@ end
 -- This fires when most of the user interface has been loaded
 -- and most data is available to the user.
 Private.OnEnable = function(self)
-
-	-- In 10.0.0 Blizzard switched to a template based system
-	-- for all backpack, bank- and bag buttons.
-	--
-	-- 	BaseContainerFrameMixin
-	-- 		BankFrameMixin 							(bank frame)
-	-- 		ContainerFrameMixin 					(all character- and bank bags) (has :Update())
-	--	 		ContainerFrameTokenWatcherMixin
-	--	 			ContainerFrameBackpackMixin 	(backpack)
-	--	 			ContainerFrameCombinedBagsMixin (all in one bag)
-
 
 	-- All the Classics
 	if (ContainerFrame_Update) then
@@ -297,15 +275,7 @@ Private.OnEnable = function(self)
 		hooksecurefunc("SetItemButtonDesaturated", UpdateLock)
 	end
 
-	--if (SortBags) then
-	--	hooksecurefunc("SortBags", UpdateAllBags)
-	--end
-	--if (SortBankBags) then
-	--	hooksecurefunc("SortBankBags", UpdateAllBankBags)
-	--end
-
 end
-
 
 -- Setup the environment
 -----------------------------------------------------------
