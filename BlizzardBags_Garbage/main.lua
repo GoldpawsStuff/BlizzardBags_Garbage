@@ -104,6 +104,16 @@ local Update = function(self, bag, slot)
 	end
 end
 
+-- Only post-update item lock on cached buttons.
+-- *If they're not cached they either will be on the next Update,
+-- or they're not cached because they're not an itembutton.
+local UpdateLock = function(self)
+	local cache = Cache[self]
+	if (cache and cache.garbage) then
+		Update(self, self:GetParent():GetID(), self:GetID())
+	end
+end
+
 -- Parse a container
 local UpdateContainer = function(self)
 	local bag = self:GetID()
@@ -176,37 +186,6 @@ local UpdateBankButton = function(self)
 	end
 end
 
--- Only post-update item lock on cached buttons.
--- *If they're not cached they either will be on the next Update,
--- or they're not cached because they're not an itembutton.
-local UpdateLock = function(self)
-	local cache = Cache[self]
-	if (cache and cache.garbage) then
-		Update(self, self:GetParent():GetID(), self:GetID())
-	end
-end
-
--- Valid in all versions, if we don't include 10.0.0 reagent bag
-local UpdateAllBags = function(self)
-	for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-		local container =_G["ContainerFrame"..i]
-		if (container) then
-			UpdateContainer(container)
-		end
-	end
-end
-
--- Only valid in < 10.0.0
-local UpdateAllBankBags = function(self)
-	UpdateBank()
-	for i = NUM_BAG_SLOTS+1, NUM_BAG_SLOTS+NUM_BANKBAGSLOTS do
-		local container =_G["ContainerFrame"..i]
-		if (container) then
-			UpdateContainer(container)
-		end
-	end
-end
-
 -- Addon Core
 -----------------------------------------------------------
 -- Your event handler.
@@ -225,11 +204,6 @@ Private.OnEvent = function(self, event, ...)
 			end
 		end
 	end
-end
-
--- Initialization.
--- This fires when the addon and its settings are loaded.
-Private.OnInit = function(self)
 end
 
 -- Enabling.
