@@ -136,7 +136,7 @@ local UpdateContainer = function(self)
 end
 
 -- Parse combined container
-UpdateCombinedContainer = function(self)
+local UpdateCombinedContainer = function(self)
 	for id,button in self:EnumerateItems() do
 		if (button.hasItem) then
 			-- The buttons retain their original bagID
@@ -182,6 +182,30 @@ local UpdateBankButton = function(self)
 		if (cache and cache.garbage) then
 			cache.garbage:Hide()
 			cache.garbage.icon:SetDesaturated(false)
+		end
+	end
+end
+
+local UpdateAll = function(self)
+	if (ContainerFrame_Update) then
+		for i = 1, NUM_CONTAINER_FRAMES, 1 do
+			local frame = _G["ContainerFrame"..i]
+			if (frame) then
+				UpdateContainer(frame)
+			end
+		end
+	elseif (ContainerFrameCombinedBags) then
+		if (ContainerFrameSettingsManager:IsUsingCombinedBags()) then
+			UpdateCombinedContainer(ContainerFrameCombinedBags)
+		else
+			-- Dragonflight and up
+			local id = 1
+			local frame = _G["ContainerFrame"..id]
+			while (frame and frame.Update) do
+				UpdateContainer(frame)
+				id = id + 1
+				frame = _G["ContainerFrame"..id]
+			end
 		end
 	end
 end
@@ -248,6 +272,8 @@ Private.OnEnable = function(self)
 	if (SetItemButtonDesaturated) then
 		hooksecurefunc("SetItemButtonDesaturated", UpdateLock)
 	end
+
+
 
 end
 
