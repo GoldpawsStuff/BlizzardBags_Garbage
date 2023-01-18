@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.10-Release] 2023-01-18
+- Updated for WoW 3.4.1.
+
 ## [1.0.9-Release] 2022-12-06
 ### Fixed
 - Fixed an issue with the retail combined frame updates that would cause only the update function of the last loaded of my bag addons to remain registered in memory, causing updates to fail.
