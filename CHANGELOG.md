@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.17-Release] 2023-07-21
+### Fixed
+- Solved an issue where garbage would gain full saturation and brightness after the bag sort button had been pressed in Retail.
+
 ## [1.0.16-Release] 2023-07-12
 - Bumped to Retail Client Patch 10.1.5.
 

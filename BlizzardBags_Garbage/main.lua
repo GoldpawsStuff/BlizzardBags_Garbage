@@ -227,6 +227,73 @@ Private.OnEvent = function(self, event, ...)
 				Update(button, BankSlotsFrame:GetID(), button:GetID())
 			end
 		end
+	elseif (event == "ITEM_UNLOCKED") then
+		local bagID, slotID = ...
+		if (not slotID) then return end
+		if (ContainerFrame_Update) then
+			for i = 1, NUM_CONTAINER_FRAMES, 1 do
+				local frame = _G["ContainerFrame"..i]
+				if (frame) then
+					local bag = frame:GetID()
+					if (bag == bagID) then
+						local button = _G[frame:GetName().."Item"..slotID]
+						if (button) then
+							if (button.hasItem) then
+								Update(button, bag, button:GetID())
+							else
+								local cache = Cache[button]
+								if (cache and cache.garbage) then
+									cache.garbage:Hide()
+									cache.garbage.icon:SetDesaturated(false)
+								end
+							end
+						end
+						return
+					end
+				end
+			end
+		elseif (ContainerFrameCombinedBags) then
+			if (ContainerFrameSettingsManager:IsUsingCombinedBags()) then
+				for id,button in ContainerFrameCombinedBags:EnumerateItems() do
+					if (button:GetBagID() == bagID and button:GetID() == slotID) then
+						if (button.hasItem) then
+							-- The buttons retain their original bagID
+							Update(button, button:GetBagID(), button:GetID())
+						else
+							local cache = Cache[button]
+							if (cache and cache.garbage) then
+								cache.garbage:Hide()
+								cache.garbage.icon:SetDesaturated(false)
+							end
+						end
+						return
+					end
+				end
+			else
+				local id = 1
+				local frame = _G["ContainerFrame"..id]
+				while (frame and frame.Update) do
+					local bag = frame:GetID()
+					if (bag == bagID) then
+						local button = _G[frame:GetName().."Item"..slotID]
+						if (button) then
+							if (button.hasItem) then
+								Update(button, bag, button:GetID())
+							else
+								local cache = Cache[button]
+								if (cache and cache.garbage) then
+									cache.garbage:Hide()
+									cache.garbage.icon:SetDesaturated(false)
+								end
+							end
+						end
+						return
+					end
+					id = id + 1
+					frame = _G["ContainerFrame"..id]
+				end
+			end
+		end
 	end
 end
 
@@ -267,13 +334,12 @@ Private.OnEnable = function(self)
 
 	-- For single item changes
 	self:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
+	self:RegisterEvent("ITEM_UNLOCKED")
 
 	-- To avoid weird double desaturation
 	if (SetItemButtonDesaturated) then
 		hooksecurefunc("SetItemButtonDesaturated", UpdateLock)
 	end
-
-
 
 end
 
