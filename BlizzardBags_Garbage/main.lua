@@ -137,7 +137,9 @@ end
 
 -- Parse combined container
 local UpdateCombinedContainer = function(self)
-	for id,button in self:EnumerateItems() do
+	local iterator = self.Items and self:EnumerateItems()
+	if (not iterator) then return end
+	for id,button in iterator do
 		if (button.hasItem) then
 			-- The buttons retain their original bagID
 			Update(button, button:GetBagID(), button:GetID())
@@ -254,19 +256,22 @@ Private.OnEvent = function(self, event, ...)
 			end
 		elseif (ContainerFrameCombinedBags) then
 			if (ContainerFrameSettingsManager:IsUsingCombinedBags()) then
-				for id,button in ContainerFrameCombinedBags:EnumerateItems() do
-					if (button:GetBagID() == bagID and button:GetID() == slotID) then
-						if (button.hasItem) then
-							-- The buttons retain their original bagID
-							Update(button, button:GetBagID(), button:GetID())
-						else
-							local cache = Cache[button]
-							if (cache and cache.garbage) then
-								cache.garbage:Hide()
-								cache.garbage.icon:SetDesaturated(false)
+				local iterator = ContainerFrameCombinedBags.Items and ContainerFrameCombinedBags:EnumerateItems()
+				if (iterator) then
+					for id,button in iterator do
+						if (button:GetBagID() == bagID and button:GetID() == slotID) then
+							if (button.hasItem) then
+								-- The buttons retain their original bagID
+								Update(button, button:GetBagID(), button:GetID())
+							else
+								local cache = Cache[button]
+								if (cache and cache.garbage) then
+									cache.garbage:Hide()
+									cache.garbage.icon:SetDesaturated(false)
+								end
 							end
+							return
 						end
-						return
 					end
 				end
 			else
