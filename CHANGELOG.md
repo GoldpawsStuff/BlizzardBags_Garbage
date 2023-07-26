@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.19-Release] 2023-07-26
+### Fixed
+- Fixed some issues that sometimes would produce an error on the initial opening of your bags.
+
 ## [1.0.18-Release] 2023-07-24
 ### Fixed
 - Fixed an issue in Retail that would cause a bug when both this addon and Bagnon was enabled and Bagnon's sort button was pressed.

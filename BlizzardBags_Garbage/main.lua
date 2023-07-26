@@ -28,6 +28,7 @@ local Addon, Private = ...
 
 -- Lua API
 local _G = _G
+local ipairs = ipairs
 local string_find = string.find
 local string_gsub = string.gsub
 local string_match = string.match
@@ -137,17 +138,30 @@ end
 
 -- Parse combined container
 local UpdateCombinedContainer = function(self)
-	local iterator = self.Items and self:EnumerateItems()
-	if (not iterator) then return end
-	for id,button in iterator do
-		if (button.hasItem) then
-			-- The buttons retain their original bagID
-			Update(button, button:GetBagID(), button:GetID())
-		else
-			local cache = Cache[button]
-			if (cache and cache.garbage) then
-				cache.garbage:Hide()
-				cache.garbage.icon:SetDesaturated(false)
+	if (self.EnumerateValidItems) then
+		for id,button in self:EnumerateValidItems() do
+			if (button.hasItem) then
+				-- The buttons retain their original bagID
+				Update(button, button:GetBagID(), button:GetID())
+			else
+				local cache = Cache[button]
+				if (cache and cache.garbage) then
+					cache.garbage:Hide()
+					cache.garbage.icon:SetDesaturated(false)
+				end
+			end
+		end
+	elseif (self.Items) then
+		for id,button in ipairs(self.Items) do
+			if (button.hasItem) then
+				-- The buttons retain their original bagID
+				Update(button, button:GetBagID(), button:GetID())
+			else
+				local cache = Cache[button]
+				if (cache and cache.garbage) then
+					cache.garbage:Hide()
+					cache.garbage.icon:SetDesaturated(false)
+				end
 			end
 		end
 	end
@@ -256,9 +270,8 @@ Private.OnEvent = function(self, event, ...)
 			end
 		elseif (ContainerFrameCombinedBags) then
 			if (ContainerFrameSettingsManager:IsUsingCombinedBags()) then
-				local iterator = ContainerFrameCombinedBags.Items and ContainerFrameCombinedBags:EnumerateItems()
-				if (iterator) then
-					for id,button in iterator do
+				if (ContainerFrameCombinedBags.Items) then
+					for id,button in ipairs(ContainerFrameCombinedBags.Items) do
 						if (button:GetBagID() == bagID and button:GetID() == slotID) then
 							if (button.hasItem) then
 								-- The buttons retain their original bagID
