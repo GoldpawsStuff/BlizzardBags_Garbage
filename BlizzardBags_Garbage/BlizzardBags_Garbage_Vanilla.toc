@@ -10,4 +10,10 @@
 ## X-Wago-ID: R4N2jZNL
 ## X-License: Custom
 
+## OptionalDeps: TaintLess
+
+#@non-debug@
+Libs\TaintLess\TaintLess.xml
+#@end-non-debug@
+
 main.lua
