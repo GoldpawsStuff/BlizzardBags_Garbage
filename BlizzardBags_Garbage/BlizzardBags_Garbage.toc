@@ -13,8 +13,5 @@
 
 ## OptionalDeps: TaintLess
 
-#@non-debug@
-Libs\TaintLess\TaintLess.xml
-#@end-non-debug@
-
+embeds.xml
 main.lua
