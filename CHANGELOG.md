@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.25-Release] 2023-10-25
+### Added
+- Added chat commands to adjust garbage settings.
+  - `/setgarbage desaturate on` - turn desaturation on
+  - `/setgarbage desaturate off` - turn desaturation off
+  - `/setgarbage darken on` - turn garbage darkening layer on
+  - `/setgarbage darken off` - turn garbage darkening layer off
+  - `/setgarbage alpah n` - sets darkening layer opacity to `n` (replace with a number between 0 and 1)
+
 ## [1.0.24-Release] 2023-10-11
 - Updated for WoW Client Patch 3.4.3.
 

@@ -11,6 +11,7 @@
 ## X-License: Custom
 
 ## OptionalDeps: TaintLess
+## SavedVariables: BlizzardBags_Garbage_DB
 
 embeds.xml
 main.lua

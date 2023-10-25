@@ -29,9 +29,13 @@ local Addon, Private = ...
 -- Lua API
 local _G = _G
 local ipairs = ipairs
+local next = next
 local string_find = string.find
 local string_gsub = string.gsub
+local string_lower = string.lower
 local string_match = string.match
+local string_split = string.split
+local string_upper = string.upper
 local tonumber = tonumber
 
 -- WoW API
@@ -46,6 +50,13 @@ local C_Container_GetContainerItemInfo = C_Container and C_Container.GetContaine
 -- globally available so addons can share it.
 local Cache = GP_ItemButtonInfoFrameCache or {}
 GP_ItemButtonInfoFrameCache = Cache
+
+-- Default settings
+BlizzardBags_Garbage_DB = {
+	desaturate = true,
+	darken = true,
+	darkenAlpha = 1
+}
 
 -- Callbacks
 -----------------------------------------------------------
@@ -72,10 +83,15 @@ local Update = function(self, bag, slot)
 		end
 	end
 
-	if (garbage) then
+	local shouldDesaturate = BlizzardBags_Garbage_DB.desaturate
+	local shouldDarken = BlizzardBags_Garbage_DB.darken
 
-		-- Retrieve or create the button's info container.
+	-- Item is garbage and we have modifications enabled
+	if (garbage and (shouldDesaturate or shouldDarken)) then
+
 		local container = Cache[self]
+
+		-- Create the item container if needed
 		if (not container) then
 			container = CreateFrame("Frame", nil, self)
 			container:SetFrameLevel(self:GetFrameLevel() + 5)
@@ -83,20 +99,25 @@ local Update = function(self, bag, slot)
 			Cache[self] = container
 		end
 
-		-- Retrieve of create the garbage overlay
+		-- Create the garbage overlay if needed
 		if (not container.garbage) then
 			container.garbage = self:CreateTexture()
 			container.garbage.icon = self.Icon or self.icon or _G[self:GetName().."IconTexture"]
+
 			local layer,level = container.garbage.icon:GetDrawLayer()
 			container.garbage:SetDrawLayer(layer, (level or 6) + 1)
 			container.garbage:SetAllPoints(container.garbage.icon)
 			container.garbage:SetColorTexture((51/255)*.2, (17/255)*.2, (6/255)*.2, .6)
 		end
 
-		container.garbage:Show()
-		container.garbage.icon:SetDesaturated(true)
+		-- Adjust according to saved settings
+		container.garbage.icon:SetDesaturated(shouldDesaturate)
+		container.garbage:SetShown(shouldDarken)
+		container.garbage:SetAlpha(.35 + .65*BlizzardBags_Garbage_DB.darkenAlpha)
 
 	else
+
+		-- Item is not garbage, turn off our modifications.
 		local cache = Cache[self]
 		if (cache and cache.garbage) then
 			cache.garbage:Hide()
@@ -357,6 +378,67 @@ Private.OnEnable = function(self)
 	-- To avoid weird double desaturation
 	if (SetItemButtonDesaturated) then
 		hooksecurefunc("SetItemButtonDesaturated", UpdateLock)
+	end
+
+	-- Parse chat input arguments
+	local parse = function(msg)
+		msg = string_gsub(msg, "^%s+", "") -- Remove spaces at the start.
+		msg = string_gsub(msg, "%s+$", "") -- Remove spaces at the end.
+		msg = string_gsub(msg, "%s+", " ") -- Replace all space characters with single spaces.
+		if (string_find(msg, "%s")) then
+			return string_split(" ", msg) -- If multiple arguments exist, split them into separate return values.
+		else
+			return msg
+		end
+	end
+
+	local command = "setgarbage"
+	local name = string_upper(Addon.."_CHATCOMMAND_"..command) -- Create a unique uppercase name for the command.
+	_G["SLASH_"..name.."1"] = "/"..command -- Register the chat command, keeping it lowercase.
+
+	-- Add the slash command function
+	_G.SlashCmdList[name] = function(msg, editBox)
+		local updateNeeded
+		local command, arg = parse(string_lower(msg))
+		if (command == "alpha") then
+			local alpha = tonumber(arg)
+			if (alpha and alpha >= 0 and alpha <= 1) then
+				local oldAlpha = BlizzardBags_Garbage_DB.darkenAlpha
+				if (alpha ~= oldAlpha) then
+					BlizzardBags_Garbage_DB.darkenAlpha = alpha
+					updateNeeded = true
+				end
+			end
+		elseif (command == "desaturate") then
+			local desaturate = BlizzardBags_Garbage_DB.desaturate
+			if (arg == "on") then
+				if (not desaturate) then
+					BlizzardBags_Garbage_DB.desaturate = true
+					updateNeeded = true
+				end
+			elseif (arg == "off") then
+				if (desaturate) then
+					BlizzardBags_Garbage_DB.desaturate = false
+					updateNeeded = true
+				end
+			end
+		elseif (command == "darken") then
+			local darken = BlizzardBags_Garbage_DB.darken
+			if (arg == "on") then
+				if (not darken) then
+					BlizzardBags_Garbage_DB.darken = true
+					updateNeeded = true
+				end
+			elseif (arg == "off") then
+				if (darken) then
+					BlizzardBags_Garbage_DB.darken = false
+					updateNeeded = true
+				end
+			end
+		end
+		if (updateNeeded) then
+			UpdateAll()
+		end
 	end
 
 end
