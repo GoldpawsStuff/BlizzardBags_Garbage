@@ -2,7 +2,7 @@
 
 	The MIT License (MIT)
 
-	Copyright (c) 2023 Lars Norberg
+	Copyright (c) 2024 Lars Norberg
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -459,12 +459,25 @@ end
 	end
 
 	-- WoW Client versions
-	local patch, build, date, version = GetBuildInfo()
+	local patch, build, date, tocversion = GetBuildInfo()
+	local major, minor, micro = string.split(".", patch)
+
+	-- Simple flags for client version checks
 	Private.IsRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 	Private.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 	Private.IsTBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 	Private.IsWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-	Private.WoW10 = version >= 100000
+	--Private.IsCata = WOW_PROJECT_ID == (WOW_PROJECT_CATA_CLASSIC or 99) -- NYI in first build
+	Private.IsCata = (tocversion >= 40400) and (tocversion < 50000)
+	Private.WoW10 = tocversion >= 100000
+
+	Private.ClientVersion = tocversion
+	Private.ClientDate = date
+	Private.ClientPatch = patch
+	Private.ClientMajor = tonumber(major)
+	Private.ClientMinor = tonumber(minor)
+	Private.ClientMicro = tonumber(micro)
+	Private.ClientBuild = tonumber(build)
 
 	-- Should mostly be used for debugging
 	Private.Print = function(self, ...)
