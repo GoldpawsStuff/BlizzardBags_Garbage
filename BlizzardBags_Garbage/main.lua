@@ -462,6 +462,11 @@ end
 	local patch, build, date, tocversion = GetBuildInfo()
 	local major, minor, micro = string.split(".", patch)
 
+	-- WoW 11.0.x
+	local GetAddOnEnableState = GetAddOnEnableState or function(character, name) return C_AddOns.GetAddOnEnableState(name, character) end
+	local GetAddOnInfo = GetAddOnInfo or C_AddOns.GetAddOnInfo
+	local GetNumAddOns = GetNumAddOns or C_AddOns.GetNumAddOns
+
 	-- Simple flags for client version checks
 	Private.IsRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 	Private.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
