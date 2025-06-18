@@ -1,4 +1,4 @@
-## Interface: 110002
+## Interface: 110107
 ## IconTexture: Interface\ICONS\Pet_Type_Mechanical
 
 ## Title: Bags: |cffffffffGarbage|r
